@@ -29,22 +29,22 @@ RUN go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest && 
     go install github.com/hakluke/hakrawler@latest && \
     go install github.com/lc/gau/v2/cmd/gau@latest
 
-# Install amass
-RUN curl -sL "https://github.com/owasp-amass/amass/releases/latest/download/amass_linux_amd64.zip" \
-    -o /tmp/amass.zip && \
-    unzip /tmp/amass.zip -d /tmp/amass && \
-    mv /tmp/amass/amass_linux_amd64/amass /usr/local/bin/amass && \
-    rm -rf /tmp/amass /tmp/amass.zip
+# Install amass from source
+RUN git clone https://github.com/owasp-amass/amass.git /tmp/amass && \
+    cd /tmp/amass && \
+    go build -o /usr/local/bin/amass ./cmd/amass && \
+    rm -rf /tmp/amass
 
 # Python OSINT tools
 RUN pip install --no-cache-dir \
     theHarvester \
-    recon-ng \
     sherlock-project \
     shodan \
     censys \
     dnspython \
-    requests
+    requests && \
+    git clone https://github.com/lanmaster53/recon-ng.git /opt/recon-ng && \
+    ln -s /opt/recon-ng/recon-ng /usr/local/bin/recon-ng
 
 WORKDIR /results
 
