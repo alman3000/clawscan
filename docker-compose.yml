@@ -1,0 +1,121 @@
+services:
+  osint:
+    build:
+      context: ./containers/osint
+    container_name: clawscan-osint
+    hostname: osint
+    volumes:
+      - ./results:/results
+    environment:
+      - SHODAN_API_KEY=${SHODAN_API_KEY:-}
+      - HUNTER_API_KEY=${HUNTER_API_KEY:-}
+      - INTELX_API_KEY=${INTELX_API_KEY:-}
+      - VIRUSTOTAL_API_KEY=${VIRUSTOTAL_API_KEY:-}
+      - CENSYS_API_ID=${CENSYS_API_ID:-}
+      - CENSYS_API_SECRET=${CENSYS_API_SECRET:-}
+    networks:
+      - scanner-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          memory: 128M
+
+  vulnscan:
+    build:
+      context: ./containers/vulnscan
+    container_name: clawscan-vulnscan
+    hostname: vulnscan
+    volumes:
+      - ./results:/results
+      - nuclei-templates:/root/nuclei-templates
+    networks:
+      - scanner-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '4.0'
+          memory: 4G
+        reservations:
+          memory: 256M
+
+  portscan:
+    build:
+      context: ./containers/portscan
+    container_name: clawscan-portscan
+    hostname: portscan
+    volumes:
+      - ./results:/results
+    networks:
+      - scanner-net
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          memory: 128M
+
+  webscan:
+    build:
+      context: ./containers/webscan
+    container_name: clawscan-webscan
+    hostname: webscan
+    volumes:
+      - ./results:/results
+      - ./wordlists:/wordlists:ro
+    networks:
+      - scanner-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          memory: 128M
+
+  cmsscan:
+    build:
+      context: ./containers/cmsscan
+    container_name: clawscan-cmsscan
+    hostname: cmsscan
+    volumes:
+      - ./results:/results
+    environment:
+      - WPSCAN_API_TOKEN=${WPSCAN_API_TOKEN:-}
+    networks:
+      - scanner-net
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          memory: 128M
+
+volumes:
+  nuclei-templates:
+
+networks:
+  scanner-net:
+    driver: bridge
