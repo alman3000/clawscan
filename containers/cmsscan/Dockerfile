@@ -39,7 +39,6 @@ RUN pip3 install --no-cache-dir --break-system-packages droopescan
 
 # CMSmap — multi-CMS: WordPress, Joomla, Drupal (Python)
 RUN git clone --depth 1 https://github.com/dionach/CMSmap.git /opt/cmsmap && \
-    pip3 install --no-cache-dir --break-system-packages -r /opt/cmsmap/requirements.txt && \
     chmod +x /opt/cmsmap/cmsmap.py && \
     ln -s /opt/cmsmap/cmsmap.py /usr/local/bin/cmsmap
 
